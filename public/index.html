@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Credentials</title>
+  <link rel="stylesheet" href="./css/bootma.min.css">
+  <script src="./js/axios.min.js"></script>
+  <script src="./js/vue-2.6.12.js"></script>
+
+  <style>
+  abbr {
+    overflow-wrap:break-word;
+  }
+  .border{
+    padding:6px;
+    border:1px solid;
+    border-radius: 4px;
+  }
+  .badge-success {
+    color: #fff;
+    background-color: #28a745;
+  }
+  .badge-danger {
+    color: #fff;
+    background-color: #dc3545;
+  }
+  .badge {
+    cursor: pointer;
+    border-radius: 10px;
+    width: 20px;
+    height: 20px;
+    font-size: small;
+    display: inline-block;
+    padding: .25em .4em;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+  }
+  .credentials .card-footer {
+    border-top: 1px solid #2d957f;
+  }
+  .credentials .card-footer-item:not(:last-child) {
+    border-right: 1px solid #2d957f;
+  }
+  </style>
+</head>
+
+<body>
+  <div id="transaction-app">
+    <section class="hero is-fullheight is-fullwidth mx-5 my-5 credentials">
+      <div class="container is-fluid">
+        <div class="notification" v-if="alert.show == true" :class="alert.class">
+          <button class="delete" @click="alert.show = false"></button>
+          {{ alert.message }}
+        </div>
+        <div class="buttons is-right" v-if="isAddRecord == false">
+          <button class="button is-primary" @click="addRecord()"> Add Credentials</button>
+        </div>
+        <section id="editform" class="mb-4">
+          <div v-if="isAddRecord == true">
+            <h3 id="button-addons" class="title is-4 is-spaced bd-anchor-title">
+              <span class="bd-anchor-name">
+                Add Credential
+              </span>
+            </h3>
+            <div class="row">
+              <div class="col">
+                <input type="text" class="input" placeholder="Enter Site Name" v-model="newDetails.name">
+              </div>
+              <div class="col">
+                <input type="text" class="input" placeholder="Enter Username" v-model="newDetails.username">
+              </div>
+              <div class="col">
+                <input type="text" class="input" placeholder="Enter Email" v-model="newDetails.email">
+              </div>
+              <div class="col">
+                <input type="text" class="input" placeholder="Enter Password" v-model="newDetails.password">
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <input type="text" class="input" placeholder="Enter Site Address" v-model="newDetails.website">
+              </div>
+              <div class="col">
+                <div class="border">
+                  <div class="row" v-for="(kyw, kywIndex) in newDetails.keywords" :key="kywIndex">
+                    <div class="col">
+                      <input class="input" type="text" placeholder="Key" v-model="newDetails.keywords[kywIndex].key" />
+                    </div>
+                    <div class="col">
+                      <input class="input" type="text" placeholder="Value" v-model="newDetails.keywords[kywIndex].value" />
+                    </div>
+                    <div class="col">
+                      <span class="badge badge-danger " @click="removeKeyword(kywIndex)">-</span>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col">
+                      <span>Extra Keys</span>
+                    </div>
+                    <div class="col">
+                      <span class="badge badge-success" @click="addKeyword()">+</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="buttons is-right has-addons">
+              <button class="button is-danger is-outlined" @click="isAddRecord = false" :disabled="isProcessing"> Cancel</button>
+              <button class="button is-info" @click="saveRecord()"
+                :disabled="isProcessing" :class="isSaveClicked == true ? 'is-loading' : ''"> Save Credential</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Card List -->
+        <div class="container">
+          <div class="row">
+            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-2" v-for="(item, index) in list" :key="index" :set="item.showContent = false">
+              <div class="card has-background-primary-light">
+                <header class="card-header">
+                  <p class="card-header-title">{{item.name != '' ? item.name : item.website}}</p>
+                  <a class="card-header-icon" aria-label="more options" v-if="!item.showContent"
+                    @click="item.showContent = true">
+                    <span class="icon">
+                      <i class="glyphicon glyphicon-chevron-down"></i>
+                    </span>
+                  </a>
+                  <a class="card-header-icon" aria-label="more options" v-if="item.showContent == true"
+                    @click="item.showContent = false">
+                    <span class="icon">
+                      <i class="glyphicon glyphicon-chevron-up"></i>
+                    </span>
+                  </a>
+                </header>
+                <div class="card-content" v-if="item.showContent == true" style="padding: 0">
+                  <div class="content user-email">
+                    <div v-if="item.website.length > 0" class="mb-2">
+                      <a :href="item.website" target="_blank">
+                        <abbr :title="item.website" style="text-decoration: none;">{{item.website.substring(0, 30)}}
+                          <span v-if="item.website.length > 30">...</span>
+                        </abbr>
+                      </a>
+                      <p class="lower-title-p"><span class="lower-title">website</span></p>
+                    </div>
+                    <div class="mb-2" v-if="item.email.length > 0">
+                      <a class="btn is-small copy-btn" :data-clipboard-text="item.email" style="padding:0px">
+                        <abbr :title="item.email" style="text-decoration: none;">{{item.email.substring(0, 30)}}
+                          <span v-if="item.email.length > 30">...</span>
+                        </abbr>
+                      </a>
+                      <p class="lower-title-p"><span class="lower-title">email</span></p>
+                    </div>
+                    <div class="mb" v-if="item.username.length > 0">
+                      <a class="btn is-small copy-btn" :data-clipboard-text="item.username" style="padding:0px">
+                        <abbr :title="item.username" style="text-decoration: none;">{{item.username.substring(0, 15)}}
+                          <span v-if="item.username.length > 15">...</span>
+                        </abbr>
+                      </a>
+                      <p class="lower-title-p"><span class="lower-title">username</span></p>
+                    </div>
+                  </div>
+                  <div class="content key-pass has-text-black" v-if="item.showDetails == true" style="padding: 0.5rem 1rem">
+                    <div class="mb-2" v-if="item.password.length > 0">
+                      <a class="btn is-small copy-btn" :data-clipboard-text="item.password" style="padding:0px">
+                        <abbr :title="item.password" style="text-decoration: none;">{{item.password.substring(0, 30)}}
+                          <span v-if="item.password.length > 30">...</span>
+                        </abbr>
+                      </a>
+                      <p class="lower-title-p"><span class="lower-title">password</span></p>
+                    </div>
+                    <div class="pb-2" v-for="(keyword, index2) in item.keywords" :key="index2">
+                      <a class="btn is-small copy-btn" :data-clipboard-text="keyword.value" style="padding:0px">
+                        <abbr :title="keyword.value" style="text-decoration: none;">{{keyword.value.substring(0, 45)}}
+                          <span v-if="keyword.value.length > 45">...</span>
+                        </abbr>
+                      </a>
+                      <p class="lower-title-p"><span class="lower-title">{{keyword.key}}</span></p>
+                    </div>
+                  </div>
+                </div>
+
+                <footer class="card-footer" v-if="item.showContent == true">
+                  <a class="card-footer-item" v-if="!item.showDetails" @click="item.showDetails = true">Show</a>
+                  <a class="card-footer-item" v-if="item.showDetails == true" @click="item.showDetails = false">Hide</a>
+                  <a class="card-footer-item" @click="copyRecord(item)" href="#editform">Copy</a>
+                  <a class="card-footer-item" @click="editRecord(item)" href="#editform">Edit</a>
+                  <a class="card-footer-item" @click="deleteForm(item)"
+                    data-target="modal-ter" aria-haspopup="true">Delete</a>
+                </footer>
+              </div>
+            </div>
+            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12" v-if="list.length == 0">
+              <div class="card has-background-primary-light">
+                <header class="card-header">
+                  <p class="card-header-title">{{credentialObj.name}}</p>
+                  <a class="card-header-icon disabled" aria-label="more options">
+                    <span class="icon">
+                      <i class="glyphicon glyphicon-chevron-up"></i>
+                    </span>
+                  </a>
+                </header>
+                <div class="card-content" style="padding: 0">
+                  <div class="content user-email">
+                    <div class="mb-2">
+                      <a class="disabled">{{credentialObj.website}}</a>
+                      <p class="lower-title-p"><span class="lower-title">website</span></p>
+                    </div>
+                    <div class="mb-2">
+                      <span>{{credentialObj.email}}</span>
+                      <p class="lower-title-p"><span class="lower-title">email</span></p>
+                    </div>
+                    <div class="mb-2">
+                      <span>{{credentialObj.username}}</span>
+                      <p class="lower-title-p"><span class="lower-title">username</span></p>
+                    </div>
+                  </div>
+                  <div class="content key-pass has-background-info-light" style="padding: 0.5rem 1rem">
+                    <div class="mb-2">
+                      <span>{{credentialObj.password}}</span>
+                      <p class="lower-title-p"><span class="lower-title">password</span></p>
+                    </div>
+                    <div class="pb-2" v-for="(keyword, index2) in credentialObj.keywords" :key="index2">
+                      <span>{{keyword.value}}</span>
+                      <p class="lower-title-p"><span class="lower-title">{{keyword.key}}</span></p>
+                    </div>
+                  </div>
+                </div>
+
+                <footer class="card-footer">
+                  <a class="card-footer-item disabled">Hide</a>
+                  <a class="card-footer-item disabled">Copy</a>
+                  <a class="card-footer-item disabled">Edit</a>
+                  <a class="card-footer-item disabled">Delete</a>
+                </footer>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <div id="modal-ter" class="modal" :class="deleteDetails != null && deleteDetails.item != null ? 'is-active' : ''"
+      v-if="deleteDetails != null && deleteDetails.item != null">
+      <div class="modal-background"></div>
+      <div class="modal-card" style="width:85% !important">
+        <header class="modal-card-head">
+          <p class="modal-card-title">{{deleteDetails.title}}</p>
+          <button class="delete" aria-label="close" @click="clearRecord()"></button>
+        </header>
+        <section class="modal-card-body" v-if="deleteDetails != null && deleteDetails.item != null">
+          <div class="notification" v-if="alert.show == true" :class="alert.class">
+            <button class="delete" @click="alert.show = false"></button>
+            {{ alert.message }}
+          </div>
+          <div class="content">
+            <table class="table is-striped is-narrow is-fullwidth">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Key</th>
+                  <th>Value</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr> <td></td> <td>Username</td> <td>{{deleteDetails.item.username}}</td> <td></td> </tr>
+                <tr> <td></td> <td>Email</td> <td>{{deleteDetails.item.email}}</td> <td></td> </tr>
+                <tr> <td></td> <td>Password</td> <td>{{deleteDetails.item.password}}</td> <td></td> </tr>
+                <tr> <td></td> <td>Webiste</td> <td>{{deleteDetails.item.website}}</td> <td></td> </tr>
+                <tr v-for="(keyword, index) in deleteDetails.item.keywords" :key="index">
+                  <td></td>
+                  <td>{{keyword.key}}</td>
+                  <td>{{keyword.value}}</td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <footer class="modal-card-foot field is-grouped is-grouped-right" v-if="deleteDetails._id != null">
+          <p class="control">
+            <button class="button is-danger" @click="deleteRecord(deleteDetails)"
+              :disabled="isDeleteClicked" :class="isSaveClicked == true ? 'is-loading' : ''">
+              <span class="fa fab-trash"></span>&nbsp;Delete
+            </button>
+          </p>
+          <p class="control">
+            <button class="button is-secondary" @click="clearRecord()" :disabled="isProcessing">Close</button>
+          </p>
+        </footer>
+      </div>
+    </div>
+  </div>
+</body>
+<script>
+
+var app = new Vue({
+  el: '#transaction-app',
+  data: {
+    openMenu: false,
+    isAddRecord: false,
+    isEditRecord: false,
+    isProcessing : false,
+    isSaveClicked : false,
+    isDeleteClicked : false,
+    newDetails: {
+      name: "",
+      website: "",
+      username: "",
+      email: "",
+      password: "",
+      keywords: []
+    },
+    credentialObj : {
+      email : "sample@user.com",
+      keywords : [ { key : "user", value : "sample" }, { key : "access", value : "dummy" } ],
+      name : "Sample Site",
+      password : "samplepass",
+      username : "sampleuser",
+      website : "http://user.sample.com"
+    },
+    deleteDetails: {
+      _id: null,
+      title: "",
+    },
+    list: [],
+    api: null,
+    alert : {
+      show: false,
+      class: '',
+      message: ''
+    }
+  },
+  created() {
+      console.debug('Component has been created!');
+  },
+  methods: {
+    setup: function() {
+    },
+    addKeyword: function() {
+      if (!this.newDetails.keywords || this.newDetails.keywords == null || this.newDetails.keywords === undefined) {
+        this.newDetails.keywords = [];
+      }
+      this.newDetails.keywords.push({
+        key: "",
+        value: ""
+      });
+    },
+    removeKeyword: function(kywIndex) {
+      this.newDetails.keywords.splice(kywIndex, 1);
+    },
+    addRecord: function() {
+      this.isAddRecord = true;
+      this.newDetails = {
+        name: "",
+        website: "",
+        username: "",
+        email: "",
+        password: "",
+        keywords: []
+      };
+    },
+    saveRecord: function() {
+      this.processing("save");
+      if (!this.newDetails.keywords || this.newDetails.keywords == null || this.newDetails.keywords === undefined) {
+        this.newDetails.keywords = [];
+      }
+      if (this.isEditRecord) {
+        this.newDetails.showContent = false;
+        this.newDetails.showDetails = false;
+        this.newDetails.updated_at = new Date().toISOString();
+        if (!this.newDetails.created_at) {
+          this.newDetails.created_at = this.newDetails.updated_at;
+        }
+        axios.put('/credentials/' + this.newDetails._id , this.newDetails).then(() => {
+          this.newDetails = null;
+          this.isAddRecord = false;
+          this.isEditRecord = false;
+          this.processed();
+          this.getList();
+          this.alert = {
+            show: true,
+            class: 'alert-success',
+            message: 'Updated successfully!'
+          };
+        }).catch((error) => {
+          this.processed();
+          this.alert = {
+            show: true,
+            class: 'alert-danger',
+            message: error.message
+          };
+        })
+      } else {
+        this.newDetails.created_at = new Date().toISOString();
+        this.newDetails.updated_at = this.newDetails.created_at;
+        axios.post('/credentials/', this.newDetails).then(() => {
+          this.newDetails = null;
+          this.isAddRecord = false;
+          this.processed();
+          this.getList();
+          this.alert = {
+            show: true,
+            class: 'alert-success',
+            message: 'Added successfully!'
+          };
+        }).catch((error) => {
+          this.processed();
+          this.alert = {
+            show: true,
+            class: 'alert-danger',
+            message: error.message
+          };
+        })
+      }
+    },
+    getList: function() {
+      axios.get('/credentials/').then((response) => {
+        console.log('data:' , response.data)
+        this.list = response.data;
+      }).catch((error) => {
+        console.log("error:" + error)
+      })
+    },
+    editRecord: function(item) {
+      this.isEditRecord = true;
+      this.clearRecord();
+      this.newDetails = JSON.parse(JSON.stringify(item));
+      this.isAddRecord = true;
+    },
+    copyRecord: function(item) {
+      this.isAddRecord = true;
+      this.newDetails = (({ name, website, username, email, password, keywords }) => ({
+        name, website, username, email, password, keywords
+      }))(item);
+      delete this.newDetails._id;
+      console.log(this.newDetails);
+    },
+    clearRecord: function() {
+      this.deleteDetails = null;
+      this.alert = {
+        show: false,
+        class: '',
+        message: ''
+      }
+    },
+    viewForm: function(item) {
+      this.clearRecord();
+      this.deleteDetails = {
+        item: item,
+        title: item.name
+      };
+    },
+    deleteForm: function(item) {
+      this.clearRecord();
+      this.deleteDetails = {
+        item: item,
+        title: item.name,
+        _id: item._id
+        /* name: "",
+          website: "",
+          username: "",
+          email: "",
+          password: "",
+          keywords: [] */
+      };
+    },
+    deleteRecord: function(item) {
+      this.processing("delete");
+      this.deleteDetails = {
+        item: item,
+        title: null,
+        _id: item._id
+      };
+      axios.delete('/credentials/' + item._id).then(() => {
+        this.processed();
+        this.clearRecord();
+        this.alert = {
+          show: true,
+          class: 'alert-warning',
+          message: 'Deleted successfully!'
+        };
+        this.getList();
+      }).catch((error) => {
+        this.processed();
+        this.alert = {
+          show: true,
+          class: 'alert-danger',
+          message: error.message
+        };
+      })
+    },
+    processing: function(button) {
+      this.isProcessing = true;
+      switch(button) {
+        case "save":
+          this.isSaveClicked = true;
+          break;
+        case "delete":
+          this.isDeleteClicked = true;
+          break;
+      }
+    },
+    processed: function() {
+      this.isProcessing =false;
+      this.isSaveClicked = false;
+      this.isDeleteClicked = false;
+    },
+  },
+  mounted() {
+    console.debug('Component has been Mounted!');
+    this.getList();
+  }
+});
+</script>
+</html>
