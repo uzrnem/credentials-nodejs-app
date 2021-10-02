@@ -1,21 +1,16 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-// create express app
-const app = express();
+const credentials = require('./credential.controller.js');
 
+const app = express();
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
-
 app.use('/', express.static('public'));
 
-// Configuring the database
-const dbConfig = require('./database.config.js');
-const mongoose = require('mongoose');
-
-mongoose.Promise = global.Promise;
-
 // Connecting to the database
-mongoose.connect(dbConfig.url, {
+mongoose.Promise = global.Promise;
+mongoose.connect('mongodb://localhost:27017/credentials', {
 	useNewUrlParser: true
 }).then(() => {
     console.log("Successfully connected to the database");
@@ -24,7 +19,11 @@ mongoose.connect(dbConfig.url, {
     process.exit();
 });
 
-require('./credential.routes.js')(app);
+app.post('/credentials/:model', credentials.create);
+app.get('/credentials/:model', credentials.findAll);
+app.get('/credentials/:model/:credentialId', credentials.findOne);
+app.put('/credentials/:model/:credentialId', credentials.update);
+app.delete('/credentials/:model/:credentialId', credentials.delete);
 
 // listen for requests
-app.listen(9011, () => {  console.log("Server is listening on port 9011"); });
+app.listen(9030, () => {  console.log("Server is listening on port 9030"); });

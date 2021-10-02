@@ -1,0 +1,139 @@
+.bd-copy{
+    background: 0 0;
+    border: none;
+    color: #4a4a4a;
+    cursor: pointer;
+    font-size: .625rem;
+    outline: 0;
+    padding-bottom: 0;
+    padding-top: 0;
+    position: absolute;
+    right: .25rem;
+    top: .25rem;
+}
+.copy-in {
+  position: relative;
+}
+.bd-copy, .bd-copy:focus {
+  text-align: center;
+  cursor: pointer;
+  outline: none;
+  border: solid 1px;
+  border-radius: 5px;
+  box-shadow: 0 3px #999 !important;
+}
+code > pre {
+  overflow-x: auto;
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -pre-wrap;
+  white-space: -o-pre-wrap;
+  word-wrap: break-word;
+}
+.bd-copy:active {
+  box-shadow: 0 #666;
+  transform: translateY(4px);
+}
+
+.copy-btn {
+  border: 0px;
+  color: black;
+  padding:5px;
+  height:2em;
+}
+.copy-btn:active {
+  color: gray;
+}
+.view-note{
+  position: relative;
+  min-height: 1.5rem;
+}
+.flying-action {
+  position: absolute;
+  bottom: -.5rem;
+  right: 5px;
+  width: inherit !important;
+}
+.taggesh {
+  background-color: transparent !important;
+  text-decoration: none !important;
+  font-size: 1rem !important;
+  padding-left: .25em !important;
+  padding-right: .25rem !important;
+}
+.notification {
+  padding: 1rem;
+}
+.lower-title {
+  font-size: .8rem;
+  text-transform: uppercase;
+  border-style: solid;
+  border-width: 0px 0px 1px 2px;
+  padding-left: 4px;
+}
+.lower-title-p {
+  line-height: 0.5;
+  margin-bottom: .5rem;
+}
+.user-email {
+  padding: 0.5rem 1rem;
+  margin: 0px !important;
+  padding-bottom: 15px;
+}
+.key-pass {
+  border-top: 1px solid #2d957f;
+  margin: 0px !important;
+  background-color: #abf47c;
+}
+.padd-0 {
+  padding: 0px !important;
+}
+.bd-category-list a{
+  color: #fffbeb !important
+}
+.disabled {
+  opacity: .5;
+  cursor: not-allowed !important;
+}
+.hero.is-fullheight {
+  min-height: 65vh !important;
+}
+abbr {
+  overflow-wrap:break-word;
+}
+.border{
+  padding:6px;
+  border:1px solid;
+  border-radius: 4px;
+}
+.badge-success {
+  color: #fff;
+  background-color: #28a745;
+}
+.badge-danger {
+  color: #fff;
+  background-color: #dc3545;
+}
+.badge {
+  cursor: pointer;
+  border-radius: 10px;
+  width: 20px;
+  height: 20px;
+  font-size: small;
+  display: inline-block;
+  padding: .25em .4em;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+.credentials .card-footer {
+  border-top: 1px solid #2d957f;
+}
+.credentials .card-footer-item:not(:last-child) {
+  border-right: 1px solid #2d957f;
+}
+.col {
+  margin-bottom: 1rem;
+}

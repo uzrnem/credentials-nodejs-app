@@ -1,7 +1,25 @@
-const Credential = require('./credential.model.js');
+const mongoose = require('mongoose');
+
+var keywordSchema = new mongoose.Schema({
+    key: String,
+    value: String
+});
+
+const CredentialSchema = mongoose.Schema({
+    name: String,
+    username: String,
+    website: String,
+    email: String,
+    password: String,
+    keywords: [ keywordSchema ]
+}, {
+    timestamps: true
+});
 
 // Create and Save a new Credential
 exports.create = (req, res) => {
+    var Credential = mongoose.model(req.params.model, CredentialSchema);
+
     // Validate request
     if(!req.body) {
         return res.status(400).send({
@@ -25,6 +43,7 @@ exports.create = (req, res) => {
 
 // Retrieve and return all Credentials from the database.
 exports.findAll = (req, res) => {
+    var Credential = mongoose.model(req.params.model, CredentialSchema);
     Credential.find().collation({locale: "en" }).sort({name: 1})
     .then(credentials => {
         res.send(credentials);
@@ -37,6 +56,7 @@ exports.findAll = (req, res) => {
 
 // Find a single Credential with a credentialId
 exports.findOne = (req, res) => {
+    var Credential = mongoose.model(req.params.model, CredentialSchema);
     Credential.findById(req.params.credentialId)
     .then(credential => {
         if(!credential) {
@@ -59,6 +79,7 @@ exports.findOne = (req, res) => {
 
 // Update a credential identified by the credentialId in the request
 exports.update = (req, res) => {
+    var Credential = mongoose.model(req.params.model, CredentialSchema);
     // Validate Request
     if(!req.body) {
         return res.status(400).send({
@@ -89,6 +110,7 @@ exports.update = (req, res) => {
 
 // Delete a credential with the specified credentialId in the request
 exports.delete = (req, res) => {
+    var Credential = mongoose.model(req.params.model, CredentialSchema);
     Credential.findByIdAndRemove(req.params.credentialId)
     .then(credential => {
         if(!credential) {

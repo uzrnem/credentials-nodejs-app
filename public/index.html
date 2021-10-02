@@ -6,132 +6,114 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Credentials</title>
   <link rel="stylesheet" href="./css/bootma.min.css">
+  <link rel="stylesheet" href="./css/copy.css">
   <script src="./js/axios.min.js"></script>
   <script src="./js/vue-2.6.12.js"></script>
-
-  <style>
-  abbr {
-    overflow-wrap:break-word;
-  }
-  .border{
-    padding:6px;
-    border:1px solid;
-    border-radius: 4px;
-  }
-  .badge-success {
-    color: #fff;
-    background-color: #28a745;
-  }
-  .badge-danger {
-    color: #fff;
-    background-color: #dc3545;
-  }
-  .badge {
-    cursor: pointer;
-    border-radius: 10px;
-    width: 20px;
-    height: 20px;
-    font-size: small;
-    display: inline-block;
-    padding: .25em .4em;
-    line-height: 1;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: baseline;
-    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
-  }
-  .credentials .card-footer {
-    border-top: 1px solid #2d957f;
-  }
-  .credentials .card-footer-item:not(:last-child) {
-    border-right: 1px solid #2d957f;
-  }
-  </style>
 </head>
 
 <body>
   <div id="transaction-app">
-    <section class="hero is-fullheight is-fullwidth mx-5 my-5 credentials">
-      <div class="container is-fluid">
+    <nav class="navbar is-info" role="navigation" aria-label="main navigation">
+      <div class="navbar-brand"> <b class="navbar-item"> Credentials </b>
+        <a role="button" class="navbar-burger"
+          @click="openMenu = !openMenu" :class="{'is-active': openMenu}"
+          aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </a>
+      </div>
+
+      <div id="navbarBasicExample" class="navbar-menu" :class="{'is-active': openMenu}">
+        <div class="navbar-start">
+          <a class="navbar-item" v-for="(sectionValue, sectionKey) in sections"
+            :class="{'is-active' : section == sectionKey}" @click="setSection(sectionKey)">{{ sectionValue }}</a>
+
+          <!-- a class="navbar-item":class="{'is-active' : section == 'social/'}" @click="setSection('social/')">Social</a>
+          <a class="navbar-item":class="{'is-active' : section == 'hacking/'}" @click="setSection('hacking/')">Hacking</a -->
+        </div>
+      </div>
+    </nav>
+
+    <section class="hero is-fullheight is-fullwidth credentials">
+      <div class="container is-fluid mt-2">
         <div class="notification" v-if="alert.show == true" :class="alert.class">
           <button class="delete" @click="alert.show = false"></button>
           {{ alert.message }}
         </div>
-        <div class="buttons is-right" v-if="isAddRecord == false">
-          <button class="button is-primary" @click="addRecord()"> Add Credentials</button>
+        <div class="buttons is-right mb-0" v-if="isAddRecord == false">
+          <button class="button is-info" @click="addRecord()"> Add Credentials</button>
         </div>
-        <section id="editform" class="mb-4">
-          <div v-if="isAddRecord == true">
-            <h3 id="button-addons" class="title is-4 is-spaced bd-anchor-title">
-              <span class="bd-anchor-name">
-                Add Credential
-              </span>
-            </h3>
-            <div class="row">
-              <div class="col">
-                <input type="text" class="input" placeholder="Enter Site Name" v-model="newDetails.name">
-              </div>
-              <div class="col">
-                <input type="text" class="input" placeholder="Enter Username" v-model="newDetails.username">
-              </div>
-              <div class="col">
-                <input type="text" class="input" placeholder="Enter Email" v-model="newDetails.email">
-              </div>
-              <div class="col">
-                <input type="text" class="input" placeholder="Enter Password" v-model="newDetails.password">
-              </div>
+        <section id="editform" class="mb-4" v-if="isAddRecord == true">
+          <h3 id="button-addons" class="title is-4 is-spaced bd-anchor-title">
+            <span class="bd-anchor-name">
+              Add Credential
+            </span>
+          </h3>
+          <div class="row">
+            <div class="col">
+              <input type="text" class="input" placeholder="Enter Site Name" v-model="newDetails.name">
             </div>
-            <div class="row">
-              <div class="col">
-                <input type="text" class="input" placeholder="Enter Site Address" v-model="newDetails.website">
-              </div>
-              <div class="col">
-                <div class="border">
-                  <div class="row" v-for="(kyw, kywIndex) in newDetails.keywords" :key="kywIndex">
-                    <div class="col">
-                      <input class="input" type="text" placeholder="Key" v-model="newDetails.keywords[kywIndex].key" />
-                    </div>
-                    <div class="col">
-                      <input class="input" type="text" placeholder="Value" v-model="newDetails.keywords[kywIndex].value" />
-                    </div>
-                    <div class="col">
-                      <span class="badge badge-danger " @click="removeKeyword(kywIndex)">-</span>
-                    </div>
+            <div class="col">
+              <input type="text" class="input" placeholder="Enter Username" v-model="newDetails.username">
+            </div>
+            <div class="col">
+              <input type="text" class="input" placeholder="Enter Email" v-model="newDetails.email">
+            </div>
+            <div class="col">
+              <input type="text" class="input" placeholder="Enter Password" v-model="newDetails.password">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <input type="text" class="input" placeholder="Enter Site Address" v-model="newDetails.website">
+            </div>
+            <div class="col">
+              <div class="border">
+                <div class="row mt-1" v-for="(kyw, kywIndex) in newDetails.keywords" :key="kywIndex">
+                  <div class="col-5">
+                    <input class="input" type="text" placeholder="Key" v-model="newDetails.keywords[kywIndex].key" />
                   </div>
-                  <div class="row">
-                    <div class="col">
-                      <span>Extra Keys</span>
-                    </div>
-                    <div class="col">
-                      <span class="badge badge-success" @click="addKeyword()">+</span>
-                    </div>
+                  <div class="col-5">
+                    <input class="input" type="text" placeholder="Value" v-model="newDetails.keywords[kywIndex].value" />
+                  </div>
+                  <div class="col-2">
+                    <span class="badge badge-danger " @click="removeKeyword(kywIndex)">-</span>
+                  </div>
+                </div>
+                <div class="row mt-1">
+                  <div class="col-10">
+                    <span>Extra Keys</span>
+                  </div>
+                  <div class="col-2">
+                    <span class="badge badge-success" @click="addKeyword()">+</span>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="buttons is-right has-addons">
-              <button class="button is-danger is-outlined" @click="isAddRecord = false" :disabled="isProcessing"> Cancel</button>
-              <button class="button is-info" @click="saveRecord()"
-                :disabled="isProcessing" :class="isSaveClicked == true ? 'is-loading' : ''"> Save Credential</button>
-            </div>
+          </div>
+          <div class="buttons is-right has-addons">
+            <button class="button is-danger is-outlined" @click="isAddRecord = false" :disabled="isProcessing"> Cancel</button>
+            <button class="button is-info" @click="saveRecord()"
+              :disabled="isProcessing" :class="isSaveClicked == true ? 'is-loading' : ''"> Save Credential</button>
           </div>
         </section>
 
         <!-- Card List -->
         <div class="container">
           <div class="row">
-            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-2" v-for="(item, index) in list" :key="index" :set="item.showContent = false">
+            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-2" v-for="(item, index) in list" :key="index">
               <div class="card has-background-primary-light">
                 <header class="card-header">
                   <p class="card-header-title">{{item.name != '' ? item.name : item.website}}</p>
-                  <a class="card-header-icon" aria-label="more options" v-if="!item.showContent"
-                    @click="item.showContent = true">
+                  <a class="card-header-icon" aria-label="more options" v-if="item.showContent != true"
+                    @click="toggleContent(index)">
                     <span class="icon">
                       <i class="glyphicon glyphicon-chevron-down"></i>
                     </span>
                   </a>
                   <a class="card-header-icon" aria-label="more options" v-if="item.showContent == true"
-                    @click="item.showContent = false">
+                    @click="toggleContent(index)">
                     <span class="icon">
                       <i class="glyphicon glyphicon-chevron-up"></i>
                     </span>
@@ -164,7 +146,7 @@
                       <p class="lower-title-p"><span class="lower-title">username</span></p>
                     </div>
                   </div>
-                  <div class="content key-pass has-text-black" v-if="item.showDetails == true" style="padding: 0.5rem 1rem">
+                  <div class="content key-pass has-text-black" v-if="item.showDetails" style="padding: 0.5rem 1rem">
                     <div class="mb-2" v-if="item.password.length > 0">
                       <a class="btn is-small copy-btn" :data-clipboard-text="item.password" style="padding:0px">
                         <abbr :title="item.password" style="text-decoration: none;">{{item.password.substring(0, 30)}}
@@ -185,8 +167,8 @@
                 </div>
 
                 <footer class="card-footer" v-if="item.showContent == true">
-                  <a class="card-footer-item" v-if="!item.showDetails" @click="item.showDetails = true">Show</a>
-                  <a class="card-footer-item" v-if="item.showDetails == true" @click="item.showDetails = false">Hide</a>
+                  <a class="card-footer-item" v-if="item.showDetails != true" @click="toggleDetails(index)">Show</a>
+                  <a class="card-footer-item" v-if="item.showDetails == true" @click="toggleDetails(index)">Hide</a>
                   <a class="card-footer-item" @click="copyRecord(item)" href="#editform">Copy</a>
                   <a class="card-footer-item" @click="editRecord(item)" href="#editform">Edit</a>
                   <a class="card-footer-item" @click="deleteForm(item)"
@@ -333,6 +315,15 @@ var app = new Vue({
       show: false,
       class: '',
       message: ''
+    },
+    section : 'mail/',
+    sections : {
+      'mail/' : 'Mail',
+      'social/' : 'Social',
+      'program/' : 'Program',
+      'ecommerce/' : 'Ecommerce',
+      'goverment/' : 'Goverment',
+      'hacking/' : 'Hacking'
     }
   },
   created() {
@@ -376,7 +367,7 @@ var app = new Vue({
         if (!this.newDetails.created_at) {
           this.newDetails.created_at = this.newDetails.updated_at;
         }
-        axios.put('/credentials/' + this.newDetails._id , this.newDetails).then(() => {
+        axios.put('/credentials/' + this.section + this.newDetails._id , this.newDetails).then(() => {
           this.newDetails = null;
           this.isAddRecord = false;
           this.isEditRecord = false;
@@ -398,7 +389,7 @@ var app = new Vue({
       } else {
         this.newDetails.created_at = new Date().toISOString();
         this.newDetails.updated_at = this.newDetails.created_at;
-        axios.post('/credentials/', this.newDetails).then(() => {
+        axios.post('/credentials/' + this.section, this.newDetails).then(() => {
           this.newDetails = null;
           this.isAddRecord = false;
           this.processed();
@@ -419,7 +410,7 @@ var app = new Vue({
       }
     },
     getList: function() {
-      axios.get('/credentials/').then((response) => {
+      axios.get('/credentials/' + this.section).then((response) => {
         console.log('data:' , response.data)
         this.list = response.data;
       }).catch((error) => {
@@ -476,7 +467,7 @@ var app = new Vue({
         title: null,
         _id: item._id
       };
-      axios.delete('/credentials/' + item._id).then(() => {
+      axios.delete('/credentials/' + this.section + item._id).then(() => {
         this.processed();
         this.clearRecord();
         this.alert = {
@@ -510,6 +501,33 @@ var app = new Vue({
       this.isSaveClicked = false;
       this.isDeleteClicked = false;
     },
+    toggleContent(index) {
+      if ( this.list[index].showContent ) {
+        this.list[index].showContent = false;
+      } else {
+        this.list[index].showContent = true;
+      }
+      console.log(this.list[index]);
+      this.$forceUpdate();
+    },
+    toggleDetails(index) {
+      if ( this.list[index].showDetails ) {
+        this.list[index].showDetails = false;
+      } else {
+        this.list[index].showDetails = true;
+      }
+      console.log(this.list[index]);
+      this.$forceUpdate();
+    },
+    setSection(model) {
+      this.section = model;
+      this.alert = {
+        show: false,
+        class: '',
+        message: ''
+      };
+      this.getList();
+    }
   },
   mounted() {
     console.debug('Component has been Mounted!');
