@@ -28,9 +28,6 @@
         <div class="navbar-start">
           <a class="navbar-item" v-for="(sectionValue, sectionKey) in sections"
             :class="{'is-active' : section == sectionKey}" @click="setSection(sectionKey)">{{ sectionValue }}</a>
-
-          <!-- a class="navbar-item":class="{'is-active' : section == 'social/'}" @click="setSection('social/')">Social</a>
-          <a class="navbar-item":class="{'is-active' : section == 'hacking/'}" @click="setSection('hacking/')">Hacking</a -->
         </div>
       </div>
     </nav>
@@ -316,8 +313,9 @@ var app = new Vue({
       class: '',
       message: ''
     },
-    section : 'mail/',
+    section : 'bank/',
     sections : {
+      'bank/' : 'Bank',
       'mail/' : 'Mail',
       'social/' : 'Social',
       'program/' : 'Program',
@@ -375,14 +373,14 @@ var app = new Vue({
           this.getList();
           this.alert = {
             show: true,
-            class: 'alert-success',
+            class: 'is-success',
             message: 'Updated successfully!'
           };
         }).catch((error) => {
           this.processed();
           this.alert = {
             show: true,
-            class: 'alert-danger',
+            class: 'is-danger',
             message: error.message
           };
         })
@@ -396,14 +394,14 @@ var app = new Vue({
           this.getList();
           this.alert = {
             show: true,
-            class: 'alert-success',
+            class: 'is-success',
             message: 'Added successfully!'
           };
         }).catch((error) => {
           this.processed();
           this.alert = {
             show: true,
-            class: 'alert-danger',
+            class: 'is-danger',
             message: error.message
           };
         })
@@ -472,7 +470,7 @@ var app = new Vue({
         this.clearRecord();
         this.alert = {
           show: true,
-          class: 'alert-warning',
+          class: 'is-warning',
           message: 'Deleted successfully!'
         };
         this.getList();
@@ -480,7 +478,7 @@ var app = new Vue({
         this.processed();
         this.alert = {
           show: true,
-          class: 'alert-danger',
+          class: 'is-danger',
           message: error.message
         };
       })
