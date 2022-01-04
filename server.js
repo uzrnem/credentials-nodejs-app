@@ -1,7 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const credentials = require('./credential.controller.js');
+const credentials = require('./src/credential.controller.js');
+
+const { DATABASE, HOST } = require('./env');
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -10,7 +12,7 @@ app.use('/', express.static('public'));
 
 // Connecting to the database
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/credentials', {
+mongoose.connect('mongodb://' + HOST + ':27017/'+DATABASE, {
 	useNewUrlParser: true
 }).then(() => {
     console.log("Successfully connected to the database");
@@ -26,4 +28,5 @@ app.put('/credentials/:model/:credentialId', credentials.update);
 app.delete('/credentials/:model/:credentialId', credentials.delete);
 
 // listen for requests
-app.listen(9030, () => {  console.log("Server is listening on port 9030"); });
+const port = process.env.PORT || 9030;
+app.listen(port, () => {  console.log("Server is listening on port "+port); });

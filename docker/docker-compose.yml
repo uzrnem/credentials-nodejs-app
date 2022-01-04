@@ -1,0 +1,21 @@
+#docker-compose -f docker/docker-compose.yml up -d
+version: '3.7'
+
+services:
+  credential:
+    image: credential:1.0.0
+    container_name: credentials
+    environment:
+      EXP_CONFIG_DATABASE_NAME: credentials
+      EXP_CONFIG_HOST_NAME: mongodb
+      PORT: 9030
+    ports:
+      - "9030:9030"
+    expose:
+      - "9030"
+    networks:
+      - docker-compose-files_mongo-database
+
+networks:
+  docker-compose-files_mongo-database:
+    external: true

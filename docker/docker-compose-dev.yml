@@ -1,0 +1,24 @@
+#docker-compose -f docker/docker-compose-dev.yml up -d
+version: '3.7'
+
+services:
+  credential_dev:
+    image: credential:dev
+    container_name: credentials_dev
+    environment:
+      EXP_CONFIG_DATABASE_NAME: credentials
+      EXP_CONFIG_HOST_NAME: mongodb
+      PORT: 9031
+    volumes:
+      - $HOME/uzrnem/credentials/public:/app/public
+      - $HOME/uzrnem/credentials/src:/app/src
+    ports:
+      - "9031:9031"
+    expose:
+      - "9031"
+    networks:
+      - docker-compose-files_mongo-database
+
+networks:
+  docker-compose-files_mongo-database:
+    external: true

@@ -1,0 +1,42 @@
+#docker-compose -f docker-compose-full.yml up -d
+version: '3.7'
+
+services:
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - 27017:27017
+    restart: always #unless-stopped
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+      - ME_CONFIG_BASICAUTH_USERNAME=admin
+      - ME_CONFIG_BASICAUTH_PASSWORD=admin123
+    depends_on:
+      - mongodb
+    ports:
+      - 8002:8081
+    networks:
+      - mongo-database
+
+  credential:
+    image: credential:1.0.0
+    container_name: credentials
+    environment:
+      EXP_CONFIG_DATABASE_NAME: credentials
+      EXP_CONFIG_HOST_NAME: mongodb
+      PORT: 9030
+    ports:
+      - "9030:9030"
+    expose:
+      - "9030"
+    networks:
+      - mongo-database
+
+networks:
+  mongo-database:
+    driver: bridge
