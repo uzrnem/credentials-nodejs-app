@@ -14,8 +14,8 @@ services:
     expose:
       - "9030"
     networks:
-      - docker-compose-files_mongo-database
+      - database_mongo
 
 networks:
-  docker-compose-files_mongo-database:
+  database_mongo:
     external: true
